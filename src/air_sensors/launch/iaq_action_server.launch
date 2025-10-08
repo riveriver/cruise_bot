@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<launch>
+  <!-- 启动空气质量数据发布节点 -->
+  <node name="read_pub_iaq_data" pkg="air_sensors" type="ReadPubIaqData" output="screen"/>
+  <!-- 启动空气质量 Action Server -->
+  <node name="iaq_action_server" pkg="air_sensors" type="IaqActionServer" output="screen"/>
+</launch>

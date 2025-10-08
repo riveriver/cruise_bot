@@ -12,7 +12,7 @@ public:
   explicit DeviceManagerMotion(DeviceManager *owner);
   // initialize publishers/subscribers/action clients
   void init();
-  void ExecuteMoveState();
+  void ExecuteMoveBehavior();
   auto send_goto(size_t const &index) -> bool;
   auto send_exe(size_t const &index) -> bool;
   void pub_zero_vel();
@@ -30,6 +30,8 @@ public:
   void AppendExeRoute(const nav_msgs::Path &route);
   // pop next exe_route and start execution (publish record, set move state and send goto)
   bool StartExecuteFromFront();
+  // reverse current route and start execution from the end
+  bool StartExecuteReverse();
 
 private:
   DeviceManager *owner_;
@@ -41,6 +43,7 @@ private:
   size_t cur_index_;
   size_t obs_index_;
   MoveStatus move_state_;
+  bool is_reverse_execution_;  // 标记当前是否在执行反向路径
   ros::Publisher cmd_vel_pub_;
   ros::Publisher cur_pose_pub_;
   ros::Publisher record_point_pub_;

@@ -1,7 +1,8 @@
 #include "DeviceManager.hpp"
 #include "DeviceManagerMotion.hpp"
+#include <algorithm>
 
-DeviceManagerMotion::DeviceManagerMotion(DeviceManager *owner) : owner_(owner), cur_index_(0), obs_index_(0), move_state_(MoveStatus::GoGoal) {}
+DeviceManagerMotion::DeviceManagerMotion(DeviceManager *owner) : owner_(owner), cur_index_(0), obs_index_(0), move_state_(MoveStatus::GoGoal), is_reverse_execution_(false) {}
 
 void DeviceManagerMotion::init()
 {
@@ -25,7 +26,7 @@ void DeviceManagerMotion::init()
   // costmap subscribers left to DeviceManager if needed
 }
 
-void DeviceManagerMotion::ExecuteMoveState()
+void DeviceManagerMotion::ExecuteMoveBehavior()
 {
   auto *dm = owner_;
   using goalState = actionlib::SimpleClientGoalState;
@@ -40,8 +41,15 @@ void DeviceManagerMotion::ExecuteMoveState()
       if (exe_routes_.empty())
       {
         stop_move();
-        dm->task_state_ = TaskStatus::PubRoute;
-        ROS_INFO("route success!enter pub route");
+        // 根据是否为反向执行设置不同的状态
+        if (is_reverse_execution_) {
+          dm->task_state_ = TaskStatus::CompletedRoute;
+          is_reverse_execution_ = false;  // 重置标记
+          ROS_INFO("Reverse route completed! Enter Completed Route.");
+        } else {
+          dm->task_state_ = TaskStatus::ExecuteAction;
+          ROS_INFO("Forward route success! Enter Execute Action");
+        }
       }
       else
       {
@@ -142,10 +150,13 @@ void DeviceManagerMotion::ExecuteMoveState()
         && get_distance(robot_pose().value(), cur_route_.poses[cur_index_].pose).second < 10 * DEG2RAD*/
     )
     {
+      ROS_INFO("MoveBase done, start exe path");
       move_state_ = MoveStatus::ExePath;
       send_exe(cur_index_);
       break;
     }
+
+
     if (goto_ctrl_->getState().isDone() || !owner_->is_free(cur_route_.poses.at(cur_index_)))
     {
       for (auto i = cur_index_ + 10; i < cur_route_.poses.size(); ++i)
@@ -180,6 +191,7 @@ void DeviceManagerMotion::ExecuteMoveState()
     }
     break;
   }
+  
   default:
     ROS_ERROR("Error MoveStatus!");
     break;
@@ -348,6 +360,32 @@ bool DeviceManagerMotion::StartExecuteFromFront()
   record_path_pub_.publish(cur_route_);
   move_state_ = MoveStatus::GoGoal;
   cur_index_ = 0;
+  is_reverse_execution_ = false;  // 设置为正向执行
+  send_goto(cur_index_);
+  return true;
+}
+
+bool DeviceManagerMotion::StartExecuteReverse()
+{
+  if (cur_route_.poses.empty())
+    return false;
+  
+  // Create a reversed copy of the current route
+  nav_msgs::Path reversed_route = cur_route_;
+  std::reverse(reversed_route.poses.begin(), reversed_route.poses.end());
+  
+  // Update timestamps
+  reversed_route.header.stamp = ros::Time::now();
+  for (auto& pose : reversed_route.poses) {
+    pose.header.stamp = ros::Time::now();
+  }
+  
+  // Set as current route and start execution
+  cur_route_ = reversed_route;
+  record_path_pub_.publish(cur_route_);
+  move_state_ = MoveStatus::GoGoal;
+  cur_index_ = 0;
+  is_reverse_execution_ = true;   // 设置为反向执行
   send_goto(cur_index_);
   return true;
 }

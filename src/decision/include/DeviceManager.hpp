@@ -137,9 +137,11 @@ enum class SystemStatus : uint8_t
     {
         PubTask = 0,
         PubRoute,
-        PubWaypoint,
-        GoWaypoint,
-        DoBehavior,
+        GoForwardRoute,
+        ExecuteAction,
+        PubReverseRoute,    // 发布反向路线
+        GoReverseRoute,  // 执行反向路线
+        CompletedRoute       // 任务完成，准备进入下一个任务
     };
 
     enum class SystemMode : uint8_t
@@ -170,7 +172,7 @@ public:
   void stop_move();
 
 private:
-  void ExecuteMoveState();
+  void ExecuteMoveBehavior();
 
   void pub_zero_vel();
 
@@ -212,7 +214,10 @@ private:
   void RecordRouteBehavior();
   void AutoNavBehavior();
   void UpdateSystemMode(SystemMode mode);
-  bool PubAction();
+  bool ExecuteActionBehavior();
+  bool PubReverseRoute();
+  void HandleRouteCompleted();
+  void start_reverse_execution();
   // void CaptureDoneCallback(const cruise_msgs::CaptureServiceResponse& res);
 
 private:
@@ -251,6 +256,7 @@ private:
 
     DevicePoseDefine bs_pose_;
     bool move_permit_;
+    bool air_quality_goal_sent_;  // 标志位，记录是否已发送air_quality Goal
 
      /* System */
     std::string resource_path_;

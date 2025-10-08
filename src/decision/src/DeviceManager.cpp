@@ -24,10 +24,10 @@ void DeviceManager::run()
   }
 }
 
-void DeviceManager::ExecuteMoveState()
+void DeviceManager::ExecuteMoveBehavior()
 {
   if (motion_)
-    motion_->ExecuteMoveState();
+    motion_->ExecuteMoveBehavior();
 }
 
 void DeviceManager::BuildingServiceDone(const actionlib::SimpleClientGoalState &state,
@@ -48,6 +48,13 @@ void DeviceManager::AirQualityDone(const actionlib::SimpleClientGoalState &state
   if (!result)
     return;
   ROS_INFO("AirQuality got result");
+  
+  // 重置air_quality Goal发送标志位
+  air_quality_goal_sent_ = false;
+  
+  // 空气质量检测完成后，转换状态到发布反向路线
+  ROS_INFO("Air quality detection completed, transitioning to publish reverse route");
+  task_state_ = TaskStatus::PubReverseRoute;
   //  send_exe(current_index_);
 }
 
@@ -132,9 +139,21 @@ void DeviceManager::AutoNavBehavior()
   case TaskStatus::PubRoute:
     PubRoute();
     break;
-  case TaskStatus::GoWaypoint:
-    // PubAction();
-      ExecuteMoveState();
+  case TaskStatus::GoForwardRoute:
+    ExecuteMoveBehavior();
+    break;
+  case TaskStatus::ExecuteAction:
+    ExecuteActionBehavior();
+    break;
+  case TaskStatus::PubReverseRoute:
+    PubReverseRoute();
+    break;
+  case TaskStatus::GoReverseRoute:
+    ExecuteMoveBehavior();
+    break;
+  case TaskStatus::CompletedRoute:
+    // 任务完成，准备进入下一个任务
+    HandleRouteCompleted();
     break;
   default:
     ROS_ERROR("unkown task step:%d", static_cast<int>(task_state_));
@@ -169,62 +188,62 @@ void DeviceManager::UpdateSystemMode(SystemMode mode)
   }
 }
 
-bool DeviceManager::PubAction()
+bool DeviceManager::ExecuteActionBehavior()
 {
 
   TaskInfo task = cur_task_;
 
-  /* BuildingService */
-  if (
-      task.actions[task.action_index] == "HVAC_Duct" ||
-      task.actions[task.action_index] == "EL_Trunking" ||
-      task.actions[task.action_index] == "FS_Pipe" ||
-      task.actions[task.action_index] == "DR_WP_Pipe" ||
-      task.actions[task.action_index] == "EL_Lighting")
-  {
-    auto pose = device_pose_;
-    if (bs_pose_.x = 0 && bs_pose_.y == 0 && bs_pose_.yaw == 0)
-    {
-      bs_pose_ = pose;
-      cruise_msgs::TaskExecuterGoal req;
-      req.type = "building_service";
-      req.cmd = "start";
-      req.id = cur_task_.id;
-      std::stringstream ss;
-      ss << pose.x << "," << pose.y << "," << pose.yaw;
-      req.pose = ss.str();
-      req.time = "00:00:00";
-      building_service_->sendGoal(req,
-                                  boost::bind(&DeviceManager::BuildingServiceDone, this, _1, _2));
-      return true;
-    }
-    auto len = std::hypot(bs_pose_.x - pose.x, bs_pose_.y - pose.y);
-    auto agu = std::abs(bs_pose_.yaw - pose.yaw);
-    if (len < 1.0 && agu < 10 * DEG2RAD)
-      return true;
+  // /* BuildingService */
+  // if (
+  //     task.actions[task.action_index] == "HVAC_Duct" ||
+  //     task.actions[task.action_index] == "EL_Trunking" ||
+  //     task.actions[task.action_index] == "FS_Pipe" ||
+  //     task.actions[task.action_index] == "DR_WP_Pipe" ||
+  //     task.actions[task.action_index] == "EL_Lighting")
+  // {
+  //   auto pose = device_pose_;
+  //   if (bs_pose_.x = 0 && bs_pose_.y == 0 && bs_pose_.yaw == 0)
+  //   {
+  //     bs_pose_ = pose;
+  //     cruise_msgs::TaskExecuterGoal req;
+  //     req.type = "building_service";
+  //     req.cmd = "start";
+  //     req.id = cur_task_.id;
+  //     std::stringstream ss;
+  //     ss << pose.x << "," << pose.y << "," << pose.yaw;
+  //     req.pose = ss.str();
+  //     req.time = "00:00:00";
+  //     building_service_->sendGoal(req,
+  //                                 boost::bind(&DeviceManager::BuildingServiceDone, this, _1, _2));
+  //     return true;
+  //   }
+  //   auto len = std::hypot(bs_pose_.x - pose.x, bs_pose_.y - pose.y);
+  //   auto agu = std::abs(bs_pose_.yaw - pose.yaw);
+  //   if (len < 1.0 && agu < 10 * DEG2RAD)
+  //     return true;
 
-    // 确定进入任务执行阶段
-    ROS_ERROR("task:%s, enter task execution phase.", cur_task_.id.c_str());
-    // 调用goto_ctrl_使机器人暂停移动
-    move_permit_ = false;
-    goto_ctrl_->cancelGoal();
-    pub_zero_vel();
+  //   // 确定进入任务执行阶段
+  //   ROS_INFO("task:%s, enter task execution phase.", cur_task_.id.c_str());
+  //   // 调用goto_ctrl_使机器人暂停移动
+  //   move_permit_ = false;
+  //   goto_ctrl_->cancelGoal();
+  //   pub_zero_vel();
 
-    // 触发拍照服务（异步调用）
-    cruise_msgs::TaskExecuterGoal req;
-    req.type = "building_service";
-    req.cmd = "trigger";
-    req.id = cur_task_.id;
-    std::stringstream ss;
-    ss << pose.x << "," << pose.y << "," << pose.yaw;
-    req.pose = ss.str();
-    req.time = "00:00:00";
-    building_service_->sendGoal(req,
-                                boost::bind(&DeviceManager::BuildingServiceDone, this, _1, _2));
+  //   // 触发拍照服务（异步调用）
+  //   cruise_msgs::TaskExecuterGoal req;
+  //   req.type = "building_service";
+  //   req.cmd = "trigger";
+  //   req.id = cur_task_.id;
+  //   std::stringstream ss;
+  //   ss << pose.x << "," << pose.y << "," << pose.yaw;
+  //   req.pose = ss.str();
+  //   req.time = "00:00:00";
+  //   building_service_->sendGoal(req,
+  //                               boost::bind(&DeviceManager::BuildingServiceDone, this, _1, _2));
 
-    bs_pose_ = pose;
-    return true;
-  }
+  //   bs_pose_ = pose;
+  //   return true;
+  // }
 
   /* AirQuality */
   if (
@@ -235,18 +254,26 @@ bool DeviceManager::PubAction()
       task.actions[task.action_index] == "Humidity" ||
       task.actions[task.action_index] == "Air_Flow")
   {
-    // 路线的最后一个点是采集点，采集完成逆向返回初始点
-    auto pose = device_pose_;
-    cruise_msgs::TaskExecuterGoal req;
-    req.type = "air_quality";
-    req.cmd = "start";
-    req.id = cur_task_.id;
-    std::stringstream ss;
-    ss << pose.x << "," << pose.y << "," << pose.yaw;
-    req.pose = ss.str();
-    req.time = "00:00:00";
-    air_quality_->sendGoal(req,
-                           boost::bind(&DeviceManager::AirQualityDone, this, _1, _2));
+    // 只发送一次air_quality Goal，然后等待结果
+    if (!air_quality_goal_sent_) {
+      ROS_INFO("Sending air_quality Goal once, then waiting for result");
+      auto pose = device_pose_;
+      cruise_msgs::TaskExecuterGoal req;
+      req.type = "air_quality";
+      req.cmd = "start";
+      req.id = cur_task_.id;
+      std::stringstream ss;
+      ss << pose.x << "," << pose.y << "," << pose.yaw;
+      req.pose = ss.str();
+      req.time = "00:00:00";
+      air_quality_->sendGoal(req,
+                             boost::bind(&DeviceManager::AirQualityDone, this, _1, _2));
+      air_quality_goal_sent_ = true;  // 设置标志位，避免重复发送
+      ROS_INFO("Air quality Goal sent, waiting for completion");
+    } else {
+      ROS_DEBUG("Air quality Goal already sent, waiting for completion");
+    }
+    return true;
   }
   return false;
 }
@@ -646,7 +673,7 @@ auto DeviceManager::TaskCmdCallback(cruise_msgs::TaskService::Request &req, crui
       }
 
   system_mode_ = SystemMode::AutoNav;
-  task_state_ = TaskStatus::GoWaypoint;
+  task_state_ = TaskStatus::ExecuteAction;
   if (motion_)
         motion_->StartExecuteFromFront();
       resp.message = "Start new path!";
@@ -764,6 +791,52 @@ void DeviceManager::resume_move()
     motion_->resume_move();
 }
 
+void DeviceManager::start_reverse_execution()
+{
+  if (motion_)
+    motion_->StartExecuteReverse();
+}
+
+bool DeviceManager::PubReverseRoute()
+{
+  ROS_INFO("Publishing reverse route to return to start point");
+  
+  // 启动反向路径执行
+  if (motion_) {
+    if (motion_->StartExecuteReverse()) {
+      task_state_ = TaskStatus::GoReverseRoute;
+      ROS_INFO("Started reverse route execution");
+      return true;
+    } else {
+      ROS_ERROR("Failed to start reverse route execution");
+      return false;
+    }
+  }
+  
+  ROS_ERROR("Motion module not available");
+  return false;
+}
+
+void DeviceManager::HandleRouteCompleted()
+{
+  ROS_INFO("Current task completed, transitioning to next task");
+  
+  // 从任务队列中移除已完成的任务
+  if (task_helper_) {
+    task_helper_->PopFrontReadyTasks();
+    ROS_INFO("Completed task removed from queue");
+  }
+  
+  // 重置air_quality Goal发送标志位，为下个任务做准备
+  air_quality_goal_sent_ = false;
+  
+  // 重置任务状态到发布任务，准备执行下一个任务
+  task_state_ = TaskStatus::PubTask;
+  
+  // 这里可以添加其他任务完成后的清理工作
+  // 例如：重置相关变量、发送完成通知等
+}
+
 auto DeviceManager::get_distance(geometry_msgs::Pose const &a,
                             geometry_msgs::Pose const &b) -> std::pair<double, double>
 {
@@ -865,7 +938,8 @@ auto DeviceManager::pose_cost(const geometry_msgs::PoseStamped &pose) const -> u
 {
   if (!costmap_)
   {
-    ROS_WARN("No costmap yet");
+    // HACK
+    // ROS_WARN("No costmap yet");
     return true;
   }
 
@@ -905,6 +979,14 @@ void DeviceManager::exe_done(const actionlib::SimpleClientGoalState &state,
   if (!result)
     return;
   ROS_INFO("ExePath got result [%d]", result->outcome);
+  
+  // 路径执行完成后，转换到ExecuteAction状态
+  if (state == actionlib::SimpleClientGoalState::SUCCEEDED && 
+      task_state_ == TaskStatus::GoForwardRoute)
+  {
+    ROS_INFO("Path execution completed, transitioning to ExecuteAction");
+    task_state_ = TaskStatus::ExecuteAction;
+  }
 }
 
 auto DeviceManager::check_file_exist(std::string &file_path) -> bool

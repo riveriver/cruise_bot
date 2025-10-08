@@ -1,0 +1,4 @@
+<launch>
+    <node pkg="air_sensors" type="FakePubIaqData" name="FakePubIaqData" output="screen"></node>
+    <node pkg="air_sensors" type="IaqActionServer" name="IaqActionServer" output="screen"></node>
+</launch>

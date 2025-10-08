@@ -224,8 +224,8 @@ target_link_libraries(IaqActionServer ${catkin_LIBRARIES})
 add_executable(ReadPubIaqData src/ReadPubIaqData.cpp)
 target_link_libraries(ReadPubIaqData ${catkin_LIBRARIES} ${MODBUS_LIBRARY})
 
-add_executable(PubFakeData src/PubFakeData.cpp)
-target_link_libraries(PubFakeData ${catkin_LIBRARIES})
+add_executable(FakePubIaqData src/FakePubIaqData.cpp)
+target_link_libraries(FakePubIaqData ${catkin_LIBRARIES})
 
 # add_executable(test_fake_msg src/test_fake_msg.cpp)
 # target_link_libraries(test_fake_msg ${catkin_LIBRARIES} ${Libs})

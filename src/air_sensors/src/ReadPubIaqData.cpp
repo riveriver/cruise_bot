@@ -23,9 +23,6 @@ struct ModbusSensorInfo {
     bool initialized;
 };
 
-// std::ofstream save_iaq_file;
-// std::string save_iaq_file_path;
-// std::mutex save_iaq_file_mutex; 
 cruise_msgs::AirSensors air_data;
 
 void read_sensor_temp(modbus_t* interface){
@@ -153,17 +150,6 @@ int main(int argc, char** argv) {
   ros::NodeHandle nh;
   ros::Publisher iaq_pub =
     nh.advertise<cruise_msgs::AirSensors>("/sensors/air_data", 3);
-
-  /* csv init */
-  // if (!ros::param::get("save_iaq_file_path", save_iaq_file_path)) {
-  //   ROS_ERROR("Failed to get save_iaq_file_path parameter");
-  //   save_iaq_file_path = "/home/hkcrc/air_quality.csv";
-  // }
-
-  // save_iaq_file.open(save_iaq_file_path, std::ios::out | std::ios::app);
-  // if (!save_iaq_file.is_open()) {
-  //   ROS_ERROR("Failed to open CSV file: %s", save_iaq_file_path.c_str());
-  // }
 
   /* modbus init */
   /* Define the Modbus sensor initialization information */

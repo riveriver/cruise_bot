@@ -18,6 +18,7 @@ DeviceManager::DeviceManager(ros::NodeHandle &nh)
       is_app_control(false),
       is_live_stream(false),
       is_iaq_upload(false),
+      air_quality_goal_sent_(false),  // 初始化air_quality Goal发送标志位
       
       tf_robot_pose(new tf2_ros::Buffer()),
       tf_pose_listener(new tf2_ros::TransformListener(*tf_robot_pose))

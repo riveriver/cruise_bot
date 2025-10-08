@@ -67,6 +67,9 @@
   <build_depend>cruise_decision</build_depend>
   <exec_depend>cruise_decision</exec_depend>
 
+  <build_depend>cruise_msgs</build_depend>
+  <exec_depend>cruise_msgs</exec_depend>
+
   <build_depend>ranger_msgs</build_depend>
   <exec_depend>ranger_msgs</exec_depend>
   <!-- The export tag contains other, unspecified, tags -->

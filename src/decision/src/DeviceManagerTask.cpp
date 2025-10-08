@@ -10,6 +10,10 @@ bool DeviceManagerTask::PubTask()
   {
     dm->cur_task_ = PeekFrontReadyTasks();
     dm->task_state_ = TaskStatus::PubRoute;
+    
+    // 重置air_quality Goal发送标志位，确保新任务可以正常发送Goal
+    dm->air_quality_goal_sent_ = false;
+    
     ROS_INFO("Start Task:%s", dm->cur_task_.id.c_str());
     ROS_INFO("actions:");
     for (const auto &action : dm->cur_task_.actions)
@@ -31,7 +35,10 @@ bool DeviceManagerTask::PubRoute()
   auto *dm = owner_;
   if (dm->cur_task_.pose_mode == "area")
   {
+    // 切换到下一个位置
     dm->cur_task_.pose_index++;
+    
+    // 如果所有动作都执行完毕，则切换到下一个动作
     if (dm->cur_task_.pose_index >= dm->cur_task_.areas.size())
     {
       ROS_INFO("[PubRouteExecuter]route group Finished.Switch to next action.");
@@ -39,6 +46,7 @@ bool DeviceManagerTask::PubRoute()
       dm->cur_task_.action_index++;
     }
 
+    // 如果所有动作都执行完毕，则切换到下一个任务
     if (dm->cur_task_.action_index >= dm->cur_task_.actions.size())
     {
       ROS_INFO("[PubRouteExecuter]action group Finished.Switch to next task.");
@@ -51,7 +59,7 @@ bool DeviceManagerTask::PubRoute()
 
     ROS_INFO("PubRouteExecuter:cur_task_.pose_index:%d, cur_task_.action_index:%d", dm->cur_task_.pose_index, dm->cur_task_.action_index);
 
-    std::string route_name_ = std::to_string(dm->cur_task_.areas[dm->cur_task_.pose_index].floor) + "F-" +
+    std::string route_name_ = "sim_" + std::to_string(dm->cur_task_.areas[dm->cur_task_.pose_index].floor) + "F_" +
                               std::to_string(dm->cur_task_.areas[dm->cur_task_.pose_index].num) + "A";
     std::string file_path_ = dm->resource_path_ + "/path/" + route_name_;
     if (!dm->check_file_exist(file_path_))
@@ -65,10 +73,10 @@ bool DeviceManagerTask::PubRoute()
       return false;
     }
 
-  // append read routes are already in motion_. Use StartExecuteFromFront to start execution
-  ROS_INFO("Pub Route:%s", route_name_.c_str());
-  dm->motion_->StartExecuteFromFront();
-    dm->task_state_ = TaskStatus::GoWaypoint;
+    // append read routes are already in motion_. Use StartExecuteFromFront to start execution
+    ROS_INFO("Pub Route:%s", route_name_.c_str());
+    dm->motion_->StartExecuteFromFront();
+    dm->task_state_ = TaskStatus::GoForwardRoute;  // 修复：应该先进入GoForwardRoute状态进行导航
     return true;
   }
   else

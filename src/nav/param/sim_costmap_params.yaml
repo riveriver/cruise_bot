@@ -10,7 +10,7 @@ global_costmap:
   robot_base_frame: base_link  # 机器人基座坐标系
   map_type: costmap  # 地图类型
   footprint: [[0.4, 0.3], [0.4, -0.3], [-0.4, -0.3], [-0.4, 0.3]]   # 机器人外形，影响避障
-  footprint_padding: 0.0  # 机器人外形膨胀（米），越大越保守，越小越激进
+  footprint_padding: 0.3  # 机器人外形膨胀（米），越大越保守，越小越激进
 
   update_frequency: 1.0  # costmap更新频率（Hz），越大越实时但CPU占用高，越小则反应慢
   publish_frequency: 1.0  # costmap发布频率（Hz），影响可视化刷新
@@ -51,7 +51,7 @@ local_costmap:
   robot_base_frame: base_link  # 机器人基座坐标系
   map_type: costmap  # 地图类型
   footprint: [[0.4, 0.3], [0.4, -0.3], [-0.4, -0.3], [-0.4, 0.3]] # 机器人外形
-  footprint_padding: 0.2  # 外形膨胀
+  footprint_padding: 0.0  # 外形膨胀
 
   update_frequency: 5.0  # costmap更新频率，越大越实时
   publish_frequency: 1.0  # costmap发布频率

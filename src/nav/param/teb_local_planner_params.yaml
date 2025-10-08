@@ -35,10 +35,10 @@ TebLocalPlannerROS:
  acc_lim_y: 0.0
 
  # GoalTolerance
-
- xy_goal_tolerance: 0.3  # 位置容忍度（米），越大越容易判定到达，越小越精确
- yaw_goal_tolerance: 0.5  # 角度容忍度（弧度），越大越容易判定到达
+ xy_goal_tolerance: 0.5  # 位置容忍度（米），越大越容易判定到达，越小越精确
+ yaw_goal_tolerance: 1.0  # 角度容忍度（弧度），越大越容易判定到达
  free_goal_vel: false  # 到达目标点后是否允许有速度
+
 #  footprint_model : polygon
  footprint_model: # types: "point", "circular", "two_circles", "line", "polygon"
    type: "polygon"  # 机器人外形类型
@@ -82,7 +82,7 @@ TebLocalPlannerROS:
  # Obstacles
  include_costmap_obstacles: true  # 是否包含costmap障碍物
  include_dynamic_obstacles: true  # 是否考虑动态障碍物
- inflation_dist: 0.1  # 膨胀距离，越大越安全但空间变小
+ inflation_dist: 0.2  # 膨胀距离，越大越安全但空间变小
  legacy_obstacle_association: false
  obstacle_association_force_inclusion_factor: 10.0
  min_obstacle_dist: 0.05

@@ -34,11 +34,12 @@ int generateRandomIntValue(int base) {
 
 int main(int argc, char** argv) {
   /* ros init */
-  ros::init(argc, argv, "PubFakeData");
+  ros::init(argc, argv, "FakePubIaqData");
   ros::NodeHandle nh;
   ros::Publisher iaq_pub =
     nh.advertise<cruise_msgs::AirSensors>("/sensors/air_data", 10);
   ros::Rate loop_rate(1);
+  ROS_INFO("Starting FakePubIaqData node...");
   while (ros::ok()) {
     cruise_msgs::AirSensors air_data;
     air_data.airflow = generateRandomValue(0.3);              // 在0.27-0.33 m/s之间
