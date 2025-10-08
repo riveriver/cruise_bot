@@ -1,6 +1,6 @@
 <launch>
-
-  <arg name="nav_map_path" value="$(find cruise_resources)/maps/new_hkcrc_corridor_bim2.yaml"/>
+  <arg name="rviz" default="true" />
+  <arg name="nav_map_path" value="$(find cruise_resources)/maps/chiwan_8f.yaml"/>
   <arg name="cmd_vel_topic" default="/cmd_vel" />
   <arg name="odom_topic" default="Odometry" />
 
@@ -24,4 +24,8 @@
   </node>
   <node pkg="cruise_nav" type="mbf_bridge" respawn="false" name="mbf_bridge" output="screen"/>
 
+	<group if="$(arg rviz)">
+	<node launch-prefix="nice" pkg="rviz" type="rviz" name="rviz" args="-d $(find cruise_nav)/rviz/nav.rviz" />
+	</group>
+  
 </launch>
