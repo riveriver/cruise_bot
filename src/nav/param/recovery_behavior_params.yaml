@@ -1,0 +1,11 @@
+recovery_behaviors:
+- name: 'clear_costmap_global'  # 全局costmap清理恢复行为，清除全局代价地图障碍物
+  type: 'clear_costmap_recovery/ClearCostmapRecovery'  # 恢复类型
+- name: 'clear_costmap_local'  # 局部costmap清理恢复行为，清除局部代价地图障碍物
+  type: 'clear_costmap_recovery/ClearCostmapRecovery'
+
+get_path_recovery_behaviors:
+  - name: 'clear_costmap_global'  # 路径规划失败时优先尝试全局costmap清理
+
+exe_path_recovery_behaviors:
+  - name: 'clear_costmap_local'  # 路径跟踪失败时优先尝试局部costmap清理

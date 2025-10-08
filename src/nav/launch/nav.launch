@@ -1,0 +1,27 @@
+<launch>
+
+  <arg name="nav_map_path" value="$(find cruise_resource)/maps/new_hkcrc_corridor_bim2.yaml"/>
+  <arg name="cmd_vel_topic" default="/cmd_vel" />
+  <arg name="odom_topic" default="Odometry" />
+
+  <!-- <include file="$(find rplidar_ros)/launch/rplidar_s2.launch" />
+  <include file="$(find laser_filters)/launch/angle_filter_example.launch"/> -->
+
+  <node name = "map_server" pkg = "map_server" type = "map_server" args="$(arg nav_map_path) /map:=nav_map">
+    <param name="frame_id" value="map" />
+  </node>
+
+  <node pkg="tf2_ros" type="static_transform_publisher" name="tf_1" args="0.2 0 0 0 3.14159 0 base_link laser"/>
+
+  <node pkg="mbf_costmap_nav" type="mbf_costmap_nav" respawn="false" name="move_base_flex" output="screen" args="/map:=nav_map /odom:=odom">
+      <rosparam file="$(find cruise_nav)/param/costmap_params.yaml" command="load" />
+      <rosparam file="$(find cruise_nav)/param/move_base_flex_params.yaml" command="load" />
+      <rosparam file="$(find cruise_nav)/param/recovery_behavior_params.yaml" command="load" />
+      <rosparam file="$(find cruise_nav)/param/teb_local_planner_params.yaml" command="load" />
+      <rosparam file="$(find cruise_nav)/param/costmap_converter_params.yaml" command="load" />
+      <remap from="cmd_vel" to="$(arg cmd_vel_topic)"/>
+      <remap from="odom" to="$(arg odom_topic)"/>
+  </node>
+  <node pkg="cruise_nav" type="mbf_bridge" respawn="false" name="mbf_bridge" output="screen"/>
+
+</launch>

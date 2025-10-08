@@ -1,0 +1,18 @@
+std_msgs/Header header
+  time stamp
+float32 temperature
+float32 humidity
+uint32 pm1_0
+uint32 pm2_5
+uint32 pm10
+float32 tvoc
+uint32 co2
+float32 formaldehyde
+float32 light1
+float32 light2
+uint32 noise
+float32 ozone_concentration
+float32 airflow
+float32 co
+float32 rn
+float32 no2

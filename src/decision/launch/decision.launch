@@ -1,0 +1,17 @@
+<!--
+lift: 
+0- 右半圈环绕 HKCRC门口logo牌通过间隙过小可能导致规划失败
+1- 
+2- 左上方区域 没有安装2D雷达，回导致盲区撞低矮椅
+3- 左下方区域 yes
+4- 电梯巡逻 角度容忍值太大导致没有对准电梯门
+ -->
+<launch>
+  
+  <!-- <node name="soundplay_node" pkg="sound_play" type="soundplay_node.py"/> -->
+  <!-- <include file="$(find air_sensors)/launch/iaq.launch"/> -->
+  <!-- <node pkg="theta_z1" type="theta_service.py" name="theta_service" output="screen"/> -->
+
+  <node pkg="cruise_decision" type="DeviceManagerNode" name="DeviceManagerNode" output="screen"/>
+
+</launch>

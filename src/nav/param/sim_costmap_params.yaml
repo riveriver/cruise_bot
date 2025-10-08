@@ -1,0 +1,92 @@
+global_costmap:
+  plugins:
+    - { name: static_layer,    type: "costmap_2d::StaticLayer" }  # 静态地图层，提供全局静态障碍物
+    - { name: keep_out_layer,  type: "costmap_2d::KeepOutLayer" } # 禁入区层，设置不可通行区域
+    - { name: obstacle_layer,  type: "costmap_2d::ObstacleLayer" } # 动态障碍物层，融合传感器数据
+    - { name: inflation_layer, type: "costmap_2d::InflationLayer" } # 膨胀层，给障碍物周围加安全距离
+
+  track_unknown_space: false  # 是否跟踪未知区域，true更安全但路径可能更长，false更激进
+  global_frame: map  # 全局坐标系
+  robot_base_frame: base_link  # 机器人基座坐标系
+  map_type: costmap  # 地图类型
+  footprint: [[0.4, 0.3], [0.4, -0.3], [-0.4, -0.3], [-0.4, 0.3]]   # 机器人外形，影响避障
+  footprint_padding: 0.0  # 机器人外形膨胀（米），越大越保守，越小越激进
+
+  update_frequency: 1.0  # costmap更新频率（Hz），越大越实时但CPU占用高，越小则反应慢
+  publish_frequency: 1.0  # costmap发布频率（Hz），影响可视化刷新
+  transform_tolerance: 0.5  # 坐标变换容忍时间（秒），越大越容忍延迟，越小越严格
+
+  static_map: true  # 是否使用静态地图，true适合室内，false适合动态环境
+  always_send_full_costmap: false  # 是否总是发布完整costmap，true流量大，false只发变化部分
+  resolution: 0.05  # costmap分辨率（米/像素），越小越精细但内存和计算量大
+
+  static_layer:
+    map_topic: /map  # 地图话题
+    track_unknown_space: false  # 是否跟踪未知区域
+    lethal_cost_threshold: 50  # 致命障碍阈值，越小越敏感，越大越宽松
+
+  keep_out_layer:
+    enabled: true  # 是否启用禁入区
+    fill_zones: false  # 是否填充禁入区，true更严格
+    inflation_option: 3  # 禁入区膨胀选项，数值越大膨胀越多
+  
+  # TODO
+  obstacle_layer:
+    observation_sources: 2dscan
+    2dscan: { sensor_frame: laser_link, data_type: LaserScan, topic: scan, obstacle_range: 4.0, raytrace_range: 4.5, marking: true, clearing: true, min_obstacle_height: -0.1, max_obstacle_height: 0.6 }  # 2D激光参数
+    track_unknown_space: false  # 是否跟踪未知区域
+    inflation_option: 3  # 动态障碍物膨胀选项
+
+  inflation_layer:
+    inflation_radius: 0.7  # 膨胀半径（米），越大越安全但可行空间变小，越小越激进
+    cost_scaling_factor: 2.61  # 膨胀衰减系数，越大衰减越快，障碍物影响范围小
+
+local_costmap:
+  plugins:
+    - { name: keep_out_layer,  type: "costmap_2d::KeepOutLayer" }  # 禁入区层
+    - { name: obstacle_layer,  type: "costmap_2d::ObstacleLayer" }  # 动态障碍物层
+    - { name: inflation_layer, type: "costmap_2d::InflationLayer" }  # 膨胀层
+
+  global_frame: map  # 局部costmap的全局坐标系
+  robot_base_frame: base_link  # 机器人基座坐标系
+  map_type: costmap  # 地图类型
+  footprint: [[0.4, 0.3], [0.4, -0.3], [-0.4, -0.3], [-0.4, 0.3]] # 机器人外形
+  footprint_padding: 0.0  # 外形膨胀
+
+  update_frequency: 5.0  # costmap更新频率，越大越实时
+  publish_frequency: 1.0  # costmap发布频率
+  transform_tolerance: 0.5  # 坐标变换容忍时间
+
+  static_map: false  # 局部地图不使用静态地图
+  rolling_window: true  # 是否使用滚动窗口，true适合动态跟随机器人
+  width: 6  # 局部地图宽度（米），越大越安全但计算量大
+  height: 6  # 局部地图高度（米）
+  resolution: 0.05  # 分辨率
+
+  keep_out_layer:
+    enabled: true  # 是否启用禁入区
+    fill_zones: false  # 是否填充禁入区
+    inflation_option: 3  # 禁入区膨胀选项
+  
+  # TODO
+  obstacle_layer:
+    observation_sources: 2dscan
+    2dscan: { 
+      sensor_frame: laser_link, 
+      data_type: LaserScan, 
+      topic: scan, 
+      obstacle_range: 4.0, 
+      raytrace_range: 4.5, 
+      marking: true, 
+      clearing: true, 
+      min_obstacle_height: -0.1, 
+      max_obstacle_height: 0.6,
+      inf_is_valid: true,
+      observation_keep_time: 0.0, 
+      expected_update_rate: 0 }
+    track_unknown_space: false
+    inflation_option: 3
+
+  inflation_layer:
+    inflation_radius: 0.6  # 膨胀半径
+    cost_scaling_factor: 2.61  # 膨胀衰减系数

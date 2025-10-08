@@ -1,0 +1,14 @@
+# goal
+string id
+string task_type
+string task_time
+string task_location
+string task_project
+---
+# result
+float32 progress
+uint32 code
+string msg
+---
+# feedback
+float32 progress

@@ -1,0 +1,25 @@
+<Route>
+    <RouteName>CEC</RouteName>
+    <Waypoint>
+        <Name>1</Name>
+        <Type>way</Type>
+        <Pos_x>0.852433</Pos_x>
+        <Pos_y>0.413981</Pos_y>
+        <Pos_z>-9.68575e-08</Pos_z>
+        <Ori_x>-4.96695e-08</Ori_x>
+        <Ori_y>6.02843e-08</Ori_y>
+        <Ori_z>0.71713</Ori_z>
+        <Ori_w>0.69694</Ori_w>
+    </Waypoint>
+    <Waypoint>
+        <Name>2</Name>
+        <Type>way</Type>
+        <Pos_x>0.838436</Pos_x>
+        <Pos_y>-4.00105</Pos_y>
+        <Pos_z>-1.2666e-07</Pos_z>
+        <Ori_x>6.13005e-09</Ori_x>
+        <Ori_y>6.69162e-09</Ori_y>
+        <Ori_z>0.720386</Ori_z>
+        <Ori_w>-0.693573</Ori_w>
+    </Waypoint>
+</Route>

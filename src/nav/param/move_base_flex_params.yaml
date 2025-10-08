@@ -1,0 +1,24 @@
+planners:
+  - name: GlobalPlanner  # 全局路径规划器名称
+    type: global_planner/GlobalPlanner  # 全局路径规划器类型
+
+controllers:
+  - name: TebLocalPlannerROS  # 局部路径规划器名称
+    type: teb_local_planner/TebLocalPlannerROS  # 局部路径规划器类型
+
+planner_frequency: 1  # 全局规划频率（Hz），越大越频繁，路径能更快适应环境，但CPU占用增加；越小则路径更新慢，适合静态环境
+planner_patience: 60.0  # 全局规划超时时间（秒），越大越容忍规划慢，越小则容易提前放弃
+planner_max_retries: 5  # 全局规划最大重试次数，越大越容易等待成功，越小则更快报错
+
+controller_frequency: 10.0  # 局部控制频率（Hz），越大越灵敏，轨迹跟踪更及时但CPU占用高；越小则反应慢
+controller_patience: 60.0  # 局部控制超时时间（秒），越大越容忍控制慢，越小则容易提前放弃
+controller_max_retries: 600  # 局部控制最大重试次数，越大越容易等待成功，越小则更快报错
+
+recovery_enabled: true  # 是否启用恢复行为，true可自动尝试恢复，false遇到问题直接失败
+recovery_patience: 30.0  # 恢复行为最大持续时间（秒），越大越容忍恢复过程，越小则更快放弃
+
+oscillation_timeout: 1000.0  # 振荡检测超时时间（秒），越大越容忍原地抖动，越小则更快触发恢复
+oscillation_distance: 0.2  # 振荡判定距离（米），越大越容易判定为振荡，越小则更严格
+
+force_stop_at_goal: true  # 到达目标点后是否强制停止，true更安全，false可能有微小漂移
+controller_lock_costmap: false  # 控制器是否锁定costmap，true可防止并发冲突，false更灵活

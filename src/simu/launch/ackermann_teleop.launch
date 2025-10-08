@@ -1,0 +1,4 @@
+<launch>
+  <rosparam command="load" file="$(find cruise_simu)/param/ackermann_teleop_param.yaml" />
+  <node pkg="cruise_simu" type="ackermann_teleop.py" name="ackermann_teleop" required="true" />
+</launch>

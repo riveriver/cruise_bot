@@ -1,0 +1,135 @@
+GlobalPlanner:
+  planner_frequency: 1.0
+  allow_unknown: false  #默认true，是否允许路径穿过未知区域
+  default_tolerance: 0.2  #默认0.0，目标容差
+  visualize_potential: false #默认false，是否显示从PointCloud2计算得到的势区域
+  use_dijkstra: true #默认true，true表示使用dijkstra's否则使用A*
+  use_quadratic: true #默认true，true表示使用二次函数近似函数
+  use_grid_path: false #默认false，true表示使路径沿栅格边界生成，否则使用梯度下降算法
+  old_navfn_behavior: false #默认false，是否复制navfn规划器的结果
+  lethal_cost: 253 #默认253，致命代价值
+  neutral_cost: 66 #默认50，中等代价值
+  cost_factor: 0.55 #默认3.0，代价因子
+  publish_potential: false #默认true，是否发布costmap的势函数
+  orientation_mode: 0 #默认0，设置点的方向
+  orientation_window_size: 1.0 #默认1，根据orientation_mode指定的位置积分确定窗口方向
+
+TebLocalPlannerROS:
+
+ odom_topic: odom  # 里程计话题
+ map_frame: /odom
+
+ # Robot
+ max_vel_x: 1.0  # 最大前进速度（m/s），越大越快但风险高
+ max_vel_x_backwards: 1.0  # 最大后退速度，越大倒退更快
+ max_vel_theta: 1.0  # 最大角速度，越大转弯越快
+ acc_lim_x: 1.2  # 最大线加速度，越大加速越快
+ acc_lim_theta: 1.0  # 最大角加速度，越大转向越灵敏
+ is_footprint_dynamic : false
+ cmd_angle_instead_rotvel: false
+ 
+ min_turning_radius: 0.1 # 最小转弯半径，0为原地转
+ wheelbase: 0.0
+
+ max_vel_y: 0.0  # 最大侧向速度，0为差速驱动
+ acc_lim_y: 0.0
+
+ # GoalTolerance
+
+ xy_goal_tolerance: 0.3  # 位置容忍度（米），越大越容易判定到达，越小越精确
+ yaw_goal_tolerance: 0.5  # 角度容忍度（弧度），越大越容易判定到达
+ free_goal_vel: false  # 到达目标点后是否允许有速度
+#  footprint_model : polygon
+ footprint_model: # types: "point", "circular", "two_circles", "line", "polygon"
+   type: "polygon"  # 机器人外形类型
+   radius: 0.36 # for type "circular"
+   line_start: [0.0, 0.0] # for type "line"
+   line_end: [0.2, 0.0] # for type "line"
+   front_offset: 0.2 # for type "two_circles"
+   front_radius: 0.2 # for type "two_circles"
+   rear_offset: 0.0 # for type "two_circles"
+   rear_radius: 0.2 # for type "two_circles"
+   vertices: [[0.4, 0.3], [0.4, -0.3], [-0.4, -0.3], [-0.4, 0.3]] # for type "polygon"
+ complete_global_plan: true  # 是否完全跟踪全局路径
+
+ # Trajectory
+ teb_autosize: true  # 是否自动调整轨迹长度，true更灵活
+ dt_ref: 0.3  # 轨迹时间分辨率（秒），越小轨迹越精细但计算量大
+ dt_hysteresis: 0.1  # 时间分辨率变化的滞后，越大轨迹调整更平滑
+ min_samples: 3
+ max_samples: 500  # 最大轨迹点数，越大越精细但计算量大
+ allow_init_with_backwards_motion: false  # 是否允许初始倒退，true适合特殊场景
+ force_reinit_new_goal_dist : 1.0
+ global_plan_overwrite_orientation: true  # 是否用全局路径方向覆盖局部轨迹
+ max_global_plan_lookahead_dist: 2.0  # 全局路径前瞻距离（米），越大越前瞻，越小更局部
+ global_plan_prune_distance: 0.3  # 全局路径修剪距离，越大越容易丢弃旧路径
+ force_reinit_new_goal_angular: 0.78
+ feasibility_check_no_poses: 3  # 可行性检查点数，越大越严格
+ global_plan_viapoint_sep: 0.2  # 全局路径viapoint间隔，越小越密集
+ exact_arc_length: false  # 是否精确计算弧长
+ publish_feedback: false  # 是否发布反馈信息
+
+# Recovery
+ shrink_horizon_backup: true  # 是否收缩轨迹以恢复
+ shrink_horizon_min_duration: 10  # 收缩最小持续时间
+ oscillation_recovery: true  # 是否启用振荡恢复
+ oscillation_recovery_min_duration: 20  # 振荡恢复最小持续时间
+ oscillation_filter_duration: 10  # 振荡滤波持续时间
+ oscillation_v_eps: 0.1  # 振荡速度阈值
+ oscillation_omega_eps: 0.1  # 振荡角速度阈值
+
+
+ # Obstacles
+ include_costmap_obstacles: true  # 是否包含costmap障碍物
+ include_dynamic_obstacles: true  # 是否考虑动态障碍物
+ inflation_dist: 0.1  # 膨胀距离，越大越安全但空间变小
+ legacy_obstacle_association: false
+ obstacle_association_force_inclusion_factor: 10.0
+ min_obstacle_dist: 0.05
+ obstacle_association_cutoff_factor: 5.0
+ obstacle_association_force_inclusion_factor: 0.0
+ obstacle_poses_affected: 25
+
+ # Optimization
+ no_inner_iterations: 4  # 优化器内循环次数，越大越精细但慢
+ no_outer_iterations: 3  # 优化器外循环次数
+ optimization_activate: true  # 是否激活优化
+ optimization_verbose: false  # 是否输出优化详细信息
+ penalty_epsilon: 0.1  # 罚函数epsilon，越小越严格
+ weight_optimaltime: 50 # must be > 0  # 最优时间权重
+ weight_max_vel_x: 2.0  # 最大速度权重，越大越限制速度
+ weight_max_vel_y: 2.0  # 最大侧向速度权重
+ weight_max_vel_theta: 2.0  # 最大角速度权重
+ weight_acc_lim_x: 1.0  # 最大加速度权重
+ weight_acc_lim_y: 1.0  # 最大加速度权重
+ weight_acc_lim_theta: 1.0  # 最大角加速度权重
+ weight_kinematics_nh: 1000  # 非完整约束权重
+ weight_kinematics_forward_drive: 1000  # 前进驱动权重
+ weight_kinematics_turning_radius: 0.0  # 转弯半径权重
+ weight_shortest_path: 50.0  # 最短路径权重
+ weight_obstacle: 100  # 障碍物权重，越大越避障
+ weight_inflation: 0.1  # 膨胀权重
+ weight_dynamic_obstacle: 1000  # 动态障碍物权重
+ weight_dynamic_obstacle_inflation: 0.1 # 动态障碍物膨胀权重
+
+ # Homotopy Class Planner
+ enable_homotopy_class_planning: true  # 是否启用同伦类规划，true可多路径选择
+ enable_multithreading: false  # 是否多线程
+ max_number_classes: 1.0  # 最大同伦类数，越大越多路径但慢
+ selection_cost_hysteresis: 1.0  # 路径选择滞后，越大越稳定
+ selection_prefer_initial_plan: 0.9  # 优先初始路径权重
+ selection_obst_cost_scale: 100.0  # 障碍物代价缩放
+ selection_alternative_time_cost: false  # 是否考虑时间代价
+ roadmap_graph_no_samples: 15  # 路径采样点数，越大越精细
+ roadmap_graph_area_width: 5  # 路径采样区域宽度
+ roadmap_graph_area_length_scale: 1.0  # 路径采样区域长度缩放
+ h_signature_prescaler: 0.5  # 同伦签名预缩放
+ h_signature_threshold: 0.1  # 同伦签名阈值
+ obstacle_heading_threshold: 0.45  # 障碍物朝向阈值
+ switching_blocking_period: 0.0  # 路径切换阻塞时间
+ viapoints_all_candidates: true  # 所有候选路径都考虑viapoint
+ delete_detours_backwards: true  # 删除后退绕行
+ max_ratio_detours_duration_best_duration: 3.0  # 绕行最大持续时间比
+ visualize_hc_graph: false  # 是否可视化同伦图
+ visualize_with_time_as_z_axis_scale: false  # 是否用时间做z轴可视化
+

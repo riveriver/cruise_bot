@@ -1,0 +1,13 @@
+# goal
+string type
+string cmd
+string id
+string time
+string pose 
+---
+# result
+string code
+string message
+---
+# feedback
+float32 progress

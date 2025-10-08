@@ -1,0 +1,30 @@
+###########################################################################################
+## NOTE: Costmap conversion is experimental. Its purpose is to combine many point        ##
+## obstales into clusters, computed in a separate thread in order to improve the overall ##
+## efficiency of local planning. However, the implemented conversion algorithms are in a ##
+## very early stage of development. Contributions are welcome!                           ##
+###########################################################################################
+
+TebLocalPlannerROS:
+
+  ## Costmap converter plugin
+  #costmap_converter_plugin: "costmap_converter::CostmapToPolygonsDBSMCCH"
+  costmap_converter_plugin: "costmap_converter::CostmapToLinesDBSRANSAC"  # 使用RANSAC算法将costmap障碍物转为线段，越复杂越精细但计算量大
+  #costmap_converter_plugin: "costmap_converter::CostmapToLinesDBSMCCH"
+  #costmap_converter_plugin: "costmap_converter::CostmapToPolygonsDBSConcaveHull"
+  costmap_converter_spin_thread: True  # 是否单独线程处理costmap转换，True可提升实时性
+  costmap_converter_rate: 5  # costmap转换频率（Hz），越大越实时但CPU占用高
+
+
+  ## Configure plugins (namespace move_base/costmap_to_lines or move_base/costmap_to_polygons)
+  ## costmap_converter/CostmapToLinesDBSRANSAC, costmap_converter/CostmapToLinesDBSMCCH, costmap_converter/CostmapToPolygonsDBSMCCH
+  costmap_converter/CostmapToLinesDBSRANSAC:
+    cluster_max_distance: 0.4  # 聚类最大距离，越大越容易合并，越小越分散
+    cluster_min_pts: 2  # 聚类最小点数，越大越严格，越小越容易成团
+    ransac_inlier_distance: 0.15  # RANSAC内点距离阈值，越大越宽松，越小越严格
+    ransac_min_inliers: 10  # RANSAC最小内点数，越大越严格
+    ransac_no_iterations: 1500  # RANSAC最大迭代次数，越大越精细但慢
+    ransac_remainig_outliers: 3  # 允许剩余离群点数，越大越宽松
+    ransac_convert_outlier_pts: True  # 是否转换离群点
+    ransac_filter_remaining_outlier_pts: False  # 是否过滤剩余离群点
+    convex_hull_min_pt_separation: 0.1  # 凸包最小点间距，越大越稀疏

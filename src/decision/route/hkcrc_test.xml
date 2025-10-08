@@ -1,0 +1,36 @@
+<Route>
+    <RouteName>hkcrc_test</RouteName>
+    <Waypoint>
+        <Name>1</Name>
+        <Type>bs.pointcloud.record</Type>
+        <Pos_x>9.30637</Pos_x>
+        <Pos_y>25.2979</Pos_y>
+        <Pos_z>0</Pos_z>
+        <Ori_x>-6.62615e-10</Ori_x>
+        <Ori_y>7.25006e-10</Ori_y>
+        <Ori_z>-0.622792</Ori_z>
+        <Ori_w>0.782388</Ori_w>
+    </Waypoint>
+    <Waypoint>
+        <Name>2</Name>
+        <Type>bs.panorama.trigger</Type>
+        <Pos_x>9.55937</Pos_x>
+        <Pos_y>23.9168</Pos_y>
+        <Pos_z>0</Pos_z>
+        <Ori_x>2.13863e-09</Ori_x>
+        <Ori_y>-1.79258e-09</Ori_y>
+        <Ori_z>-0.66061</Ori_z>
+        <Ori_w>0.750729</Ori_w>
+    </Waypoint>
+    <Waypoint>
+        <Name>3</Name>
+        <Type>iaq</Type>
+        <Pos_x>8.95878</Pos_x>
+        <Pos_y>26.8173</Pos_y>
+        <Pos_z>0</Pos_z>
+        <Ori_x>1.26248e-09</Ori_x>
+        <Ori_y>-8.15847e-10</Ori_y>
+        <Ori_z>-0.625842</Ori_z>
+        <Ori_w>0.77995</Ori_w>
+    </Waypoint>
+</Route>
