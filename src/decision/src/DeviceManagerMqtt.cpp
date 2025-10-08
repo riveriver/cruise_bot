@@ -34,7 +34,9 @@ int8_t DeviceManagerMqtt::init(const std::string &host, int port)
   }
 
   mosquitto_message_callback_set(mosq_, DeviceManagerMqtt::MessageCallback);
+#ifdef MQTT_DEBUG
   mosquitto_log_callback_set(mosq_, DeviceManagerMqtt::LogCallback);
+#endif
 
   if (mosquitto_connect(mosq_, host.c_str(), port, 60))
   {

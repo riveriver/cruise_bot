@@ -1,6 +1,6 @@
 <launch>
 
-  <arg name="nav_map_path" value="$(find cruise_resource)/maps/new_hkcrc_corridor_bim2.yaml"/>
+  <arg name="nav_map_path" value="$(find cruise_resources)/maps/new_hkcrc_corridor_bim2.yaml"/>
   <arg name="cmd_vel_topic" default="/cmd_vel" />
   <arg name="odom_topic" default="Odometry" />
 

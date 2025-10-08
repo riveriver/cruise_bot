@@ -51,7 +51,7 @@ DeviceManager::~DeviceManager()
   upload_info_timer_.stop();
   upload_fast_info_timer_.stop();
   upload_sensor_timer_.stop();
-  ROS_ERROR("[~RobotManager] stop robot manager");
+  ROS_INFO("~DeviceManager");
 }
 
 void DeviceManager::init()

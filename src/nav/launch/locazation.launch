@@ -1,6 +1,6 @@
 <launch>
   <arg name="rviz" default="true" />
-  <arg name="pcd_map_path" value="$(find cruise_resource)/maps/new_hkcrc_corridor_bim2.pcd"/>
+  <arg name="pcd_map_path" value="$(find cruise_resources)/maps/new_hkcrc_corridor_bim2.pcd"/>
 
   <include file="$(find livox_ros_driver2)/launch_ROS1/msg_MID360.launch"/>
   <include file="$(find realsense2_camera)/launch/rs_camera.launch"/>

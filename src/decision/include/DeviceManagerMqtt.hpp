@@ -5,6 +5,8 @@
 #include <string>
 #include <mosquitto.h>
 
+// #define MQTT_DEBUG
+
 // 一个轻量的 MQTT 客户端封装类，支持订阅回调与发布
 class DeviceManagerMqtt
 {

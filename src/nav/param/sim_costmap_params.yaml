@@ -38,7 +38,7 @@ global_costmap:
     inflation_option: 3  # 动态障碍物膨胀选项
 
   inflation_layer:
-    inflation_radius: 0.7  # 膨胀半径（米），越大越安全但可行空间变小，越小越激进
+    inflation_radius: 0.8  # 膨胀半径（米），越大越安全但可行空间变小，越小越激进
     cost_scaling_factor: 2.61  # 膨胀衰减系数，越大衰减越快，障碍物影响范围小
 
 local_costmap:
@@ -51,7 +51,7 @@ local_costmap:
   robot_base_frame: base_link  # 机器人基座坐标系
   map_type: costmap  # 地图类型
   footprint: [[0.4, 0.3], [0.4, -0.3], [-0.4, -0.3], [-0.4, 0.3]] # 机器人外形
-  footprint_padding: 0.0  # 外形膨胀
+  footprint_padding: 0.2  # 外形膨胀
 
   update_frequency: 5.0  # costmap更新频率，越大越实时
   publish_frequency: 1.0  # costmap发布频率
@@ -88,5 +88,5 @@ local_costmap:
     inflation_option: 3
 
   inflation_layer:
-    inflation_radius: 0.6  # 膨胀半径
+    inflation_radius: 0.8  # 膨胀半径
     cost_scaling_factor: 2.61  # 膨胀衰减系数
